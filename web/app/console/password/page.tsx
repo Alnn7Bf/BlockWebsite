@@ -38,7 +38,7 @@ export default function PasswordProtectionPage() {
                         >
                             Contraseña
                         </label>
-                        <PasswordInput id="password_1"/>
+                        <PasswordInput id="password_1" name="password_1"/>
                     </div>
                     <div className="flex flex-col gap-4">
                         <label 
@@ -47,7 +47,7 @@ export default function PasswordProtectionPage() {
                         >
                             Confirmar contraseña
                         </label>
-                        <PasswordInput id="password_2"/>
+                        <PasswordInput id="password_2" name="password_2"/>
                         <p className="text-sm leading-relaxed text-foreground/40">
                             Asegúrate de recordar esta contraseña.
                         </p>
