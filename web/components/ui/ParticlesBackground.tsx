@@ -18,7 +18,7 @@ export default function ParticlesBackground() {
         <NextParticlesProvider init={init}>
             <NextParticles 
                 id="tsparticles" 
-                className="absolute inset-0 z-10"
+                className="absolute inset-0 -z-10"
                 options={particlesConfig} 
             />
         </NextParticlesProvider>

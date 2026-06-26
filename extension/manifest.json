@@ -1,0 +1,18 @@
+{
+    "manifest_version": 3,
+    "name": "BlockWebsite",
+    "short_name": "BlockWebsite",
+    "version": "1.0.0",
+    "description": "Aumenta tu productividad con BlockWebsite",
+    "permissions": [
+        "declarativeNetRequest",
+        "declarativeNetRequestWithHostAccess",
+        "storage",
+        "identity"
+    ],
+    "host_permissions": ["<all_urls>"],
+    "background": {
+        "service_worker": "background.js"
+    },
+    "action": "popup.html"
+}

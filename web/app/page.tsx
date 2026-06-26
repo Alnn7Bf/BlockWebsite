@@ -32,7 +32,7 @@ export default function Home() {
                     </p>
                     <div className="mt-12 flex flex-col gap-4 sm:flex-row">
                         <Link
-                            href="/login"
+                            href="/auth"
                             className="group flex items-center justify-center gap-2 bg-foreground px-6 py-4 text-background transition duration-200 hover:opacity-90"
                         >
                             Iniciar sesión
