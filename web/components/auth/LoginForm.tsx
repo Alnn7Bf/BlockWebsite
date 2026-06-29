@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -9,25 +10,39 @@ import PasswordInput from "@/components/ui/PasswordInput";
 import type { FormData } from "@/types/auth";
 
 export default function LoginForm() {
-  const { register, handleSubmit } = useForm<FormData>();
+  const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
+
+  const [hasError, setHasError] = useState(false);
+  const clearServerError = () => setHasError(false);
+
+  const formError = 
+    errors.email?.message ||
+    errors.password?.message;
 
   const router = useRouter();
 
   const onSubmit = handleSubmit(async (data) => {
+    setHasError(false);
+
     const res = await signIn("credentials", {
       email: data.email,
       password: data.password,
       redirect: false,
     });
 
-    if(res?.ok) router.push("/console/blocked");
+    if(res?.ok) {
+      router.push("/console/blocked")
+    } else {
+      setHasError(true);
+    }
+
   });
   
   return (
     <form 
       autoComplete="off"
       onSubmit={onSubmit}
-      className="flex flex-col gap-8"
+      className="flex flex-col gap-6"
     >
       <div className="flex flex-col gap-4">
         <label 
@@ -42,9 +57,14 @@ export default function LoginForm() {
           placeholder="correo@ejemplo.com"
           className="border border-foreground/10 w-full bg-transparent px-4 py-3 pr-14 text-foreground outline-none focus:bg-foreground/2 transition-all duration-200"
           {...register("email", {
+            onChange: clearServerError,
             required: {
               value: true,
-              message: "Email is required"
+              message: "Ingresa tu correo electrónico."
+            },
+            pattern: {
+              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+              message: "Ingresa un correo electrónico válido."
             }
           })}
         />
@@ -60,9 +80,10 @@ export default function LoginForm() {
           id="login_password"
           autoComplete="current-password"
           {...register("password", {
+            onChange: clearServerError,
             required: {
               value: true,
-              message: "Passrowd is required"
+              message: "Ingresa tu contraseña."
             }
           })}
         />
@@ -75,7 +96,13 @@ export default function LoginForm() {
           ¿Olvidaste tu contraseña?
         </Link>
       </div>
-
+      {(formError || hasError) && (
+        <div className="border border-red-500/80 bg-red-500/5 px-4 py-2">
+          <p className="text-sm text-red-500 text-center">
+            {formError ?? "Correo o contraseña incorrectos."}
+          </p>
+        </div>
+      )}
       <div className="border-t border-foreground/10 pt-8">
         <button 
           type="submit"

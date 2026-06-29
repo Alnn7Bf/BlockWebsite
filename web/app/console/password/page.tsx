@@ -29,7 +29,7 @@ export default function PasswordProtectionPage() {
                                 Requerir contraseña antes de modificar configuraciones importantes.
                             </p>
                         </div>
-                        <ToggleButton />
+                        <ToggleButton enabled={true}/>
                     </div>
                     <div className="flex flex-col gap-4">
                         <label 

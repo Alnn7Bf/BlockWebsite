@@ -8,6 +8,8 @@
   --subtitle: 0.35rem;
 
   --blur-6xl: 120px;
+
+  --xxs: 10px;
 }
 
 @layer utilities {
@@ -27,6 +29,8 @@
   --tracking-subtitle: var(--subtitle);
 
   --blur-6xl: var(--blur-6xl);
+
+  --text-xxs: var(--xxs);
 }
 
 @media (prefers-color-scheme: dark) {

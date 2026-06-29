@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import validatePassword from "@/utils/validate-password";
 import { prisma } from "@/lib/prisma";
 import argon2 from "argon2";
 
@@ -10,7 +11,7 @@ export async function POST(req : NextRequest) {
             return NextResponse.json(
                 {
                     ok: false,
-                    message: "Faltan campos obligatorios"
+                    message: "Completa todos los campos para continuar."
                 }, { status: 400 }
             )
         }
@@ -21,11 +22,23 @@ export async function POST(req : NextRequest) {
             }
         });
 
+        const passwordValidation = validatePassword(password);
+
+        if(!passwordValidation.valid) {
+            return NextResponse.json(
+                {
+                    ok: false,
+                    message: "La contraseña no cumple los requisitos de seguridad.",
+                    errors: passwordValidation.errors,
+                }, { status: 400 }
+            )
+        }
+
         if(existingUser) {
             return NextResponse.json(
                 {
                     ok: false,
-                    message: "El correo ya está registrado"
+                    message: "Ya existe una cuenta con este correo electrónico."
                 }, { status: 409 }
             )
         }
@@ -54,7 +67,7 @@ export async function POST(req : NextRequest) {
         return NextResponse.json(
             {
                 ok: false,
-                message: "Error interno del servidor"
+                message: "No pudimos crear tu cuenta. Intenta nuevamente."
             }, { status: 500 }
         );
     };

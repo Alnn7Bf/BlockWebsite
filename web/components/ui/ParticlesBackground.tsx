@@ -2,7 +2,7 @@
 
 import { NextParticles, NextParticlesProvider } from "@tsparticles/nextjs";
 import type { Engine } from "@tsparticles/engine";
-import { particlesConfig } from "@/utils/particlesConfig";
+import { particlesConfig } from "@/config/particles.config";
 
 const init = async (engine: Engine): Promise<void> => {
     const [{ loadSlim }, { loadThemesPlugin }] = await Promise.all([
