@@ -1,4 +1,52 @@
+"use client";
+
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import CustomForm from "@/components/console/custom/CustomForm";
+import PreviewPanel from "@/components/console/custom/PreviewPanel";
+
+import type { CustomData } from "@/types/custom";
+
 export default function CustomBlockPage() {
+    const { register, handleSubmit, watch, reset, formState: { isDirty } } = useForm<CustomData>({
+        defaultValues: {
+            title: "",
+            description: "",
+            redirect: "",
+        }
+    });
+
+    const previewData = watch();
+
+    useEffect(() => {
+        const loadSettings = async () => {
+            const res = await fetch('/api/custom');
+
+            if(!res.ok) return;
+
+            const json = await res.json();
+
+            reset(json.data);
+        }
+        loadSettings();
+    }, [reset]);
+
+    const onSubmit = handleSubmit(async (data) => {
+        const res = await fetch('/api/custom', {
+            method: 'PATCH',
+            body: JSON.stringify(data),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        if(!res.ok) return;
+
+        const json = await res.json();
+
+        reset(json.data);
+    });
+
     return (
         <main className="flex flex-col p-8">
             <section className="flex flex-col gap-4 my-8">
@@ -15,68 +63,35 @@ export default function CustomBlockPage() {
                 </div>
             </section>
             <section className="my-8 grid gap-x-20 gap-y-10 xl:grid-cols-[minmax(0,1fr)_500px]">
-                <div className="flex flex-col gap-14">
-                    <div className="flex flex-col gap-4">
-                        <label 
-                            htmlFor="blocked_title"
-                            className="text-xs uppercase tracking-subtitle text-foreground/40">
-                            Título
-                        </label>
-                        <input
-                            id="blocked_title"
-                            type="text"
-                            placeholder="Sitio bloqueado"
-                            className="border border-foreground/10 bg-transparent focus:bg-foreground/2 px-5 py-4 outline-none placeholder:text-foreground/30 transition-all duration-200"
-                        />
-                    </div>
-                    <div className="flex flex-col gap-4">
-                        <label 
-                            htmlFor="blocked_description"
-                            className="text-xs uppercase tracking-subtitle text-foreground/40">
-                            Descripción
-                        </label>
-                        <textarea
-                            id="blocked_description"
-                            placeholder="Este sitio ha sido bloqueado para ayudarte a mantener el enfoque."
-                            className="min-h-44 resize-none border border-foreground/10 bg-transparent focus:bg-foreground/2 px-5 py-4 outline-none placeholder:text-foreground/30 transition-all duration-200"
-                        />
-                    </div>
-                    <div className="flex flex-col gap-4">
-                        <label 
-                            htmlFor="blocked_redirect"
-                            className="text-xs uppercase tracking-subtitle text-foreground/40">
-                            Redirección
-                        </label>
-                        <input
-                            id="blocked_redirect"
-                            type="text"
-                            placeholder="https://youtube.com/watch?v=dQw4w9WgXcQ"
-                            className="border border-foreground/10 bg-transparent focus:bg-foreground/2 px-5 py-4 outline-none placeholder:text-foreground/30 transition-all duration-200"
-                        />
-                    </div>
-                </div>
+                <CustomForm
+                    register={register}
+                    onSubmit={onSubmit}
+                />
                 <div className="flex flex-col gap-4">
                     <p className="text-xs uppercase tracking-subtitle text-foreground/40">
                         Vista previa
                     </p>
-                    <div className="flex flex-1 flex-col items-center justify-center border border-foreground/10 p-12 text-center">
-                        <p className="mb-6 text-xs uppercase tracking-[0.3em] text-foreground/30">
-                            BlockWebsite
-                        </p>
-                        <h2 className="text-4xl font-medium tracking-tight text-foreground">
-                            Sitio bloqueado
-                        </h2>
-                        <p className="mt-6 max-w-sm leading-relaxed text-foreground/50">
-                            Este sitio ha sido bloqueado para ayudarte a
-                            mantener el enfoque.
-                        </p>
-                        <button className="mt-10 border border-foreground/10 px-6 py-3 text-sm transition duration-200 hover:bg-foreground/5 cursor-pointer">
-                            Continuar
-                        </button>
-                    </div>
+                    <PreviewPanel data={previewData} />
                 </div>
                 <div className="xl:col-span-2 flex justify-end border-t border-foreground/10 pt-8">
-                    <button className="border border-foreground/10 px-8 py-4 text-sm tracking-wider text-foreground/70 transition duration-200 hover:bg-foreground/5 hover:text-foreground cursor-pointer">
+                    <button
+                        type="submit"
+                        form="custom-form"
+                        disabled={!isDirty}
+                        className={`
+                            border
+                            px-6
+                            py-3
+                            text-sm
+                            tracking-wide
+                            transition-all
+                            duration-200
+                            ${isDirty
+                                ? "cursor-pointer border-foreground/10 text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
+                                : "cursor-default border-foreground/5 text-foreground/20"
+                            }
+                        `}
+                    >
                         Guardar cambios
                     </button>
                 </div>

@@ -26,16 +26,31 @@ model User {
   createdAt     DateTime      @default(now())
 
   blockedSites  BlockedSite[]
+  settings      UserSettings?
 }
 
 model BlockedSite {
-  id Int @id @default(autoincrement())
-  domain String
-  isEnabled Boolean @default(true)
-  createdAt DateTime @default(now())
+  id        Int       @id @default(autoincrement())
+  domain    String
+  isEnabled Boolean   @default(true)
+  createdAt DateTime  @default(now())
 
-  userId Int
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, domain])
+}
+
+model UserSettings {
+  id                  Int       @id @default(autoincrement())
+
+  blockPageTitle        String?
+  blockPageDescription  String?
+  blockPageRedirect     String?
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  userId              Int       @unique
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

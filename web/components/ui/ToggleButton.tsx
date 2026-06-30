@@ -15,7 +15,7 @@ export default function ToggleButton({ enabled, onToggle = () => {}} : Props) {
                 h-7
                 w-11
                 items-center
-                ${enabled? "bg-foreground/15 border-foreground/20" : "bg-foreground/5 border-foreground/10"}
+                ${enabled? "bg-foreground/20 border-foreground/20" : "bg-foreground/5 border-foreground/10"}
                 rounded-full
                 border
                 p-1

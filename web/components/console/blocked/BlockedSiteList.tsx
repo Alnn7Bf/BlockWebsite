@@ -1,26 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { BlockedSite } from "@/lib/generated/prisma/client";
 import { useRouter } from "next/navigation";
-import ToggleButton from "../ui/ToggleButton";
+import ToggleButton from "../../ui/ToggleButton";
+import { ToggleIcon } from "@/components/ui/Icons";
+
 
 type Props = {
     sites: BlockedSite[];
 }
 
 export default function BlockedSiteList({ sites } : Props) {
+    const router = useRouter();
+
     const [localSites, setLocalSites] = useState(sites);
 
-    const router = useRouter();
+    useEffect(() => {
+        setLocalSites(sites);
+    }, [sites]);
 
     const toggleSite = (id : number) => {
         setLocalSites(current =>
-            current.map(site =>
-                site.id === id
-                    ? { ...site, isEnabled: !site.isEnabled }
-                    : site
-            )
+            current.map(site => {
+                if(site.id !== id) return site;
+
+                return {
+                    ...site,
+                    isEnabled: !site.isEnabled,
+                };
+            })
         );
     };
 
@@ -52,7 +61,7 @@ export default function BlockedSiteList({ sites } : Props) {
                     key={site.id}
                     className="flex items-center justify-between border border-transparent px-5 py-4 hover:bg-foreground/2 hover:border-foreground/20 transition-all duration-200"
                 >
-                    <div className="flex items-center gap-5">
+                    <div className={`flex items-center gap-5 ${site.isEnabled? 'opacity-100' : 'opacity-30'} transition-all duration-200`}>
                         <img 
                             src={`https://www.google.com/s2/favicons?domain=${site.domain}&sz=64`}
                             alt=""
@@ -62,9 +71,18 @@ export default function BlockedSiteList({ sites } : Props) {
                             {site.domain}
                         </span>
                     </div>
-                    <div className="flex items-center gap-4">
-                        <span className="w-auto text-right text-xxs uppercase tracking-subtitle text-foreground/40">
-                            {site.isEnabled ? "Bloqueado" : "Desbloqueado"}
+                    <div className="flex items-center gap-8">
+                        <span className={`
+                            w-auto
+                            text-right
+                            uppercase
+                            tracking-subtitle
+                            text-foreground/40
+                            ${site.isEnabled? 'opacity-100' : 'opacity-30'}
+                            transition-all
+                            duration-200
+                        `}>
+                            {site.isEnabled ? <ToggleIcon.lock size={25} /> : <ToggleIcon.unlock size={25} /> }
                         </span>
                         <ToggleButton
                             enabled={site.isEnabled}

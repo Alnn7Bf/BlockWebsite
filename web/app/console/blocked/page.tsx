@@ -1,8 +1,8 @@
-import BlockedSiteForm from "@/components/console/BlockedSiteForm";
+import BlockedSiteForm from "@/components/console/blocked/BlockedSiteForm";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/config/auth.config";
 import { prisma } from "@/lib/prisma";
-import BlockedSiteList from "@/components/console/BlockedSiteList";
+import BlockedSiteList from "@/components/console/blocked/BlockedSiteList";
 
 export default async function BlockedSitesPage() {
     const session = await getServerSession(authOptions);
