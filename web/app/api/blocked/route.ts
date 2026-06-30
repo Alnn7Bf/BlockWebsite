@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
-import { unauthorized, badRequest, serverError, success } from "@/lib/api";
+import { unauthorized, badRequest, serverError, success, conflict } from "@/lib/api";
 import { normalizeDomain } from "@/utils/normalize-domain";
 
 export async function POST(req : NextRequest) {
@@ -14,6 +14,15 @@ export async function POST(req : NextRequest) {
 
         const normalized = normalizeDomain(domain);
         if(!normalized) return badRequest("Dominio inválido.");
+
+        const exists = await prisma.blockedSite.findFirst({
+            where: {
+                userId: user.id,
+                domain: normalized,
+            },
+        });
+
+        if(exists) return conflict("Este dominio ya está bloqueado.");
 
         await prisma.blockedSite.create({
             data: {
@@ -51,6 +60,6 @@ export async function PATCH(req: NextRequest) {
 
         return success("Cambios guardados correctamente.");
     } catch(error) {
-        return serverError("No fue posible guardar los cambios");
+        return serverError("No fue posible guardar los cambios.");
     }
 }

@@ -55,7 +55,7 @@ export default function BlockedSiteList({ sites } : Props) {
     const hasChanges = JSON.stringify(localSites) !== JSON.stringify(sites);
  
     return <div>
-        <ul className="flex flex-col border border-foreground/10">
+        <ul className="flex flex-col max-h-96 overflow-y-auto border border-foreground/10">
             {localSites.map((site) => (
                 <li
                     key={site.id}

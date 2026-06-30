@@ -53,7 +53,7 @@ export default function BlockedSiteForm() {
     return <form
         onSubmit={onSubmit}
         autoComplete="off"
-        className="flex flex-col gap-3"
+        className="relative flex flex-col gap-3"
     >
         <label
             htmlFor="new_domain"
@@ -84,7 +84,7 @@ export default function BlockedSiteForm() {
             </button>
         </div>
         {error && (
-            <p className="text-red-500 text-sm">{error}</p>
+            <p className="absolute left-0 bottom-0 translate-y-8 text-foreground/50 text-sm">{ error }</p>
         )}
     </form>
 }
