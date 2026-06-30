@@ -42,7 +42,6 @@
 
 html {
   font-size: 16px;
-  scroll-behavior: smooth;
   scrollbar-width: thin;
   scrollbar-color: rgba(255,255,255,.12) transparent;
 }

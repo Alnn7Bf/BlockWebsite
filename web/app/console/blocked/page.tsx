@@ -1,13 +1,12 @@
 import BlockedSiteForm from "@/components/console/blocked/BlockedSiteForm";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/config/auth.config";
 import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/auth";
 import BlockedSiteList from "@/components/console/blocked/BlockedSiteList";
 
 export default async function BlockedSitesPage() {
-    const session = await getServerSession(authOptions);
+    const user = await getCurrentUser();
 
-    if(!session?.user.id) {
+    if(!user) {
         return <main className="p-8">
             <p className="text-red-500">No autorizado</p>
         </main>
@@ -15,7 +14,7 @@ export default async function BlockedSitesPage() {
 
     const sites = await prisma.blockedSite.findMany({
         where: {
-            userId: Number(session.user.id),
+            userId: user.id,
         },
         orderBy: {
             createdAt: "desc",

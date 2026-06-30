@@ -1,81 +1,47 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/config/auth.config";
+import { getCurrentUser } from "@/lib/auth";
+import { unauthorized, badRequest, serverError, success } from "@/lib/api";
 import { normalizeDomain } from "@/utils/normalize-domain";
 
 export async function POST(req : NextRequest) {
     try {
-        const session = await getServerSession(authOptions);
-
-        if (!session?.user?.id) {
-            return NextResponse.json({
-                ok: false,
-                message: "No autorizado."
-            }, { status: 401 });
-        }
+        const user = await getCurrentUser();
+        if (!user) return unauthorized();
 
         const { domain } = await req.json();
-
-        if(!domain) {
-            return NextResponse.json({
-                ok: false,
-                message: "Ingresa un dominio."
-            }, { status: 400 });
-        }
+        if(!domain) return badRequest("Ingresa un dominio.");
 
         const normalized = normalizeDomain(domain);
-
-        if(!normalized) {
-            return NextResponse.json({
-                ok: false,
-                message: "Dominio inválido."
-            }, { status: 400 });
-        }
+        if(!normalized) return badRequest("Dominio inválido.");
 
         await prisma.blockedSite.create({
             data: {
                 domain: normalized,
-                userId: Number(session.user.id)
+                userId: user.id
             }
         });
 
-        return NextResponse.json({
-            ok: true
-        })
+        return success();
     } catch (error) {
-        return NextResponse.json({
-            ok: false,
-            messaje: "Error al bloquear el sitio."
-        }, { status: 500 });
+        return serverError("Error al bloquear el sitio.");
     }
 }
 
 export async function PATCH(req: NextRequest) {
     try {
-        const session = await getServerSession(authOptions);
-
-        if (!session?.user?.id) {
-            return NextResponse.json({
-                ok: false,
-                message: "No autorizado."
-            }, { status: 401 });
-        }
+        const user = await getCurrentUser();
+        if (!user) return unauthorized();
         
         const sites = await req.json();
+        if(!Array.isArray(sites)) return badRequest("Datos inválidos.");
 
-        if(!Array.isArray(sites)) {
-            return NextResponse.json({
-                ok: false,
-                message: "Datos inválidos."
-            }, { status: 400 });
-        }
         await prisma.$transaction(
             sites.map(site => 
                 prisma.blockedSite.updateMany({
                     where: {
                         id: site.id,
-                        userId: Number(session.user.id),
+                        userId: user.id,
                     }, data: {
                         isEnabled: site.isEnabled
                     },
@@ -83,14 +49,8 @@ export async function PATCH(req: NextRequest) {
             )
         );
 
-        return NextResponse.json({
-            ok: true,
-            message: "Cambios guardados correctamente.",
-        });
+        return success("Cambios guardados correctamente.");
     } catch(error) {
-        return NextResponse.json({
-            ok: false,
-            message: "No fue posible guardar los cambios",
-        }, { status: 500 });
+        return serverError("No fue posible guardar los cambios");
     }
 }

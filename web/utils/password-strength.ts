@@ -1,4 +1,3 @@
-
 export const strengthColors = [
     "text-red-500",
     "text-orange-500",

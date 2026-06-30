@@ -1,43 +1,14 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/config/auth.config";
+import { getCurrentUser } from "@/lib/auth";
+import { serverError, success, unauthorized } from "@/lib/api";
 
 import type { CustomData } from "@/types/custom";
 
 export async function GET() {
     try {
-        const session = await getServerSession(authOptions);
-
-        if (!session?.user?.email) {
-            return NextResponse.json(
-                {
-                    ok: false,
-                    message: "No autorizado."
-                },
-                {
-                    status: 401
-                }
-            );
-        }
-
-        const user = await prisma.user.findUnique({
-            where: {
-                email: session.user.email
-            }
-        });
-
-        if (!user) {
-            return NextResponse.json(
-                {
-                    ok: false,
-                    message: "Usuario no encontrado."
-                },
-                {
-                    status: 404
-                }
-            );
-        }
+        const user = await getCurrentUser();
+        if(!user) return unauthorized();
 
         const settings = await prisma.userSettings.findUnique({
             where: {
@@ -45,53 +16,21 @@ export async function GET() {
             }
         });
 
-        return NextResponse.json({
-            ok: true,
-            data: {
-                title: settings?.blockPageTitle ?? "",
-                description: settings?.blockPageDescription ?? "",
-                redirect: settings?.blockPageRedirect ?? ""
-            }
-        });
+        return success(undefined, {
+            title: settings?.blockPageTitle ?? "",
+            description: settings?.blockPageDescription ?? "",
+            redirect: settings?.blockPageRedirect ?? ""
+        })
 
     } catch (error) {
-        console.error(error);
-
-        return NextResponse.json(
-            {
-                ok: false,
-                message: "Ocurrió un error interno."
-            },
-            {
-                status: 500
-            }
-        );
+        return serverError();
     }
 }
 
 export async function PATCH(req: NextRequest) {
     try {
-        const session = await getServerSession(authOptions);
-
-        if (!session?.user?.email) {
-            return NextResponse.json({
-                ok: false,
-                message: "No autorizado."
-            }, { status: 401 });
-        }
-
-        const user = await prisma.user.findUnique({
-            where: {
-                email: session.user.email
-            }
-        });
-
-        if (!user) {
-            return NextResponse.json({
-                ok: false,
-                message: "Usuario no encontrado."
-            }, { status: 404 });
-        }
+        const user = await getCurrentUser();
+        if(!user) return unauthorized();
 
         const data: CustomData = await req.json();
 
@@ -110,21 +49,13 @@ export async function PATCH(req: NextRequest) {
             }
         });
 
-        return NextResponse.json({
-            ok: true,
-            data: {
-                title: settings.blockPageTitle ?? "",
-                description: settings.blockPageDescription ?? "",
-                redirect: settings.blockPageRedirect ?? ""
-            }
+        return success(undefined, {
+            title: settings.blockPageTitle ?? "",
+            description: settings.blockPageDescription ?? "",
+            redirect: settings.blockPageRedirect ?? ""
         });
 
     } catch (error) {
-        console.error(error);
-
-        return NextResponse.json({
-            ok: false,
-            message: "Ocurrió un error interno."
-        }, { status: 500 });
+        return serverError();
     }
 }
